@@ -9,7 +9,7 @@ HYPOTHESIS: Ancient stone circles functioned as:
 3. Conduits for lightning and telluric currents - leveraging Earth's natural electromagnetic fields
 
 Your task is to analyze the user's location and provide:
-1. Three prioritized sites within 10-20 miles that have the best geological characteristics for testing this hypothesis
+1. Five prioritized sites within 10-20 miles that have the best geological characteristics for testing this hypothesis
 2. Detailed stone circle specifications appropriate for the region
 3. Testing and measurement guidance
 
@@ -92,7 +92,7 @@ async function analyzeWithOpenAI(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `Analyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 3 site recommendations within 10-20 miles.`,
+          content: `Analyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 5 site recommendations within 10-20 miles.`,
         },
       ],
       temperature: 0.7,
@@ -127,7 +127,7 @@ async function analyzeWithAnthropic(
       messages: [
         {
           role: "user",
-          content: `Analyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 3 site recommendations within 10-20 miles.`,
+          content: `Analyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 5 site recommendations within 10-20 miles.`,
         },
       ],
     }),
@@ -158,7 +158,7 @@ async function analyzeWithGemini(
           {
             parts: [
               {
-                text: `${SYSTEM_PROMPT}\n\nAnalyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 3 site recommendations within 10-20 miles.`,
+                text: `${SYSTEM_PROMPT}\n\nAnalyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 5 site recommendations within 10-20 miles.`,
               },
             ],
           },
@@ -196,7 +196,7 @@ async function analyzeWithGrok(
         { role: "system", content: SYSTEM_PROMPT },
         {
           role: "user",
-          content: `Analyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 3 site recommendations within 10-20 miles.`,
+          content: `Analyze this location for stone circle testing sites: ${location.address} (coordinates: ${location.lat}, ${location.lng}). Consider the regional geology, fault lines, mineral deposits, and lightning patterns. Provide 5 site recommendations within 10-20 miles.`,
         },
       ],
       temperature: 0.7,
@@ -255,12 +255,14 @@ function parseAIResponse(response: string, location: Location): AnalysisResult {
 }
 
 function getDefaultSites(location: Location) {
-  // Generate 3 sites roughly 10-15 miles from the center in different directions
+  // Generate 5 sites roughly 10-15 miles from the center in different directions
   const sites = [];
   const directions = [
     { name: "North Ridge", angle: 0 },
-    { name: "Eastern Valley", angle: 120 },
-    { name: "Southwest Hills", angle: 240 },
+    { name: "Eastern Valley", angle: 72 },
+    { name: "Southeast Hills", angle: 144 },
+    { name: "Southwest Basin", angle: 216 },
+    { name: "Western Plateau", angle: 288 },
   ];
 
   for (const dir of directions) {

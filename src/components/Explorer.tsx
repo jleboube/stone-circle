@@ -415,7 +415,7 @@ export default function Explorer({ onBack }: ExplorerProps) {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-mystic-400">2.</span>
-                  Identifies 3 optimal sites within 10-20 miles that align with
+                  Identifies 5 optimal sites within 10-20 miles that align with
                   the hypothesis
                 </li>
                 <li className="flex items-start gap-2">
