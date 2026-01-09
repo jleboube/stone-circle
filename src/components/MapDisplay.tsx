@@ -54,7 +54,7 @@ export default function MapDisplay({
 
     const siteIcon = (index: number) =>
       L.divIcon({
-        html: `<div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/50 border-2 border-white text-white font-bold">
+        html: `<div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-full flex items-center justify-center shadow-lg shadow-cyan-500/50 border-2 border-white text-white font-bold">
                 ${index + 1}
               </div>`,
         className: "",
@@ -92,7 +92,7 @@ export default function MapDisplay({
           [site.coordinates.lat, site.coordinates.lng],
         ],
         {
-          color: "#8b5cf6",
+          color: "#06b6d4",
           weight: 2,
           opacity: 0.5,
           dashArray: "5, 10",

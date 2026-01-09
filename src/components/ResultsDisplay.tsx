@@ -161,7 +161,7 @@ export default function ResultsDisplay({
                           ${selectedSite === site ? "ring-2 ring-mystic-500 scale-[1.02]" : "hover:bg-mystic-800/30"}`}
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-mystic-500 to-pink-500 flex items-center justify-center font-bold">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-mystic-500 to-cyan-500 flex items-center justify-center font-bold">
                     {index + 1}
                   </div>
                   <div>
@@ -340,11 +340,11 @@ export default function ResultsDisplay({
                       {result.specs.circleDimensions.spacing}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Orientation</span>
-                    <span className="font-medium">
+                  <div className="pt-2 border-t border-mystic-800">
+                    <span className="text-gray-400 text-sm">Orientation</span>
+                    <p className="font-medium mt-1">
                       {result.specs.circleDimensions.orientation}
-                    </span>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -549,6 +549,13 @@ export default function ResultsDisplay({
           Report generated on {new Date(result.timestamp).toLocaleString()}
         </p>
       </main>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 bg-black border-t border-gray-800">
+        <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
+          <p>2026 Copyright - Joe LeBoube</p>
+        </div>
+      </footer>
     </div>
   );
 }

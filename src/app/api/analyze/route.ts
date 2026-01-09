@@ -10,7 +10,7 @@ HYPOTHESIS: Ancient stone circles functioned as:
 
 Your task is to analyze the user's location and provide:
 1. Five prioritized sites within 10-20 miles that have the best geological characteristics for testing this hypothesis
-2. Detailed stone circle specifications appropriate for the region
+2. Detailed stone circle specifications appropriate for the region - IMPORTANT: This is a SMALL-SCALE TEST setup, not a recreation of Stonehenge. Stones must be manageable by 1-2 people WITHOUT heavy equipment (under 50 lbs each)
 3. Testing and measurement guidance
 
 For each site, consider:
@@ -20,6 +20,8 @@ For each site, consider:
 - Historical lightning frequency
 - Telluric current patterns
 - Accessibility and safety
+
+IMPORTANT for specs: Design a PORTABLE TEST CIRCLE that can be set up by 1-2 people in a few hours. Use small stones (hand-sized to basketball-sized, under 50 lbs) that can be carried. The circle should be small enough to be practical (3-5 meters diameter) but large enough to test the hypothesis.
 
 Respond with a JSON object following this exact structure (no markdown, just pure JSON):
 {
@@ -42,17 +44,17 @@ Respond with a JSON object following this exact structure (no markdown, just pur
       "localSources": ["source1", "source2"]
     },
     "rockSize": {
-      "height": "X-Y feet",
-      "weight": "X-Y lbs",
+      "height": "X-Y inches",
+      "weight": "X-Y lbs (must be under 50 lbs for portability)",
       "quantity": number
     },
     "circleDimensions": {
-      "diameter": "X meters",
+      "diameter": "X meters (3-5m recommended for testing)",
       "spacing": "X meters between stones",
       "orientation": "Alignment guidance"
     },
     "setup": {
-      "embedding": "Depth in ground",
+      "embedding": "Surface placement or shallow setting",
       "tools": ["tool1", "tool2"],
       "timeEstimate": "Estimated setup time"
     }
@@ -302,34 +304,35 @@ function getDefaultSites(location: Location) {
 function getDefaultSpecs() {
   return {
     rockType: {
-      recommended: "Granite with high quartz content",
-      alternatives: ["Sandstone", "Bluestone", "Local metamorphic rock"],
+      recommended: "Quartz-rich granite or raw quartz chunks",
+      alternatives: ["Rose quartz", "Milky quartz", "Granite fieldstones"],
       localSources: [
-        "Local quarries (search for 'stone quarry' in your area)",
-        "Landscaping suppliers",
-        "Natural outcrop areas",
+        "Rock and mineral shops",
+        "Landscaping suppliers (ask for quartz/granite)",
+        "Natural creek beds and outcrop areas",
+        "Online mineral suppliers",
       ],
     },
     rockSize: {
-      height: "2-4 feet",
-      weight: "100-300 lbs each",
-      quantity: 12,
+      height: "6-12 inches",
+      weight: "10-40 lbs each (easily carried by one person)",
+      quantity: 8,
     },
     circleDimensions: {
-      diameter: "10 meters",
-      spacing: "2.5 meters between stones",
-      orientation: "Align entrance to magnetic north or summer solstice sunrise",
+      diameter: "4 meters (~13 feet)",
+      spacing: "1.5 meters between stones",
+      orientation: "Align one axis to magnetic north; mark cardinal directions",
     },
     setup: {
-      embedding: "12-18 inches into ground for stability",
+      embedding: "Place directly on ground or nestle 2-3 inches into soil",
       tools: [
-        "Shovel",
-        "Level",
         "Compass",
         "Measuring tape",
-        "Rope for circle layout",
+        "String/rope for circle layout",
+        "Marker stakes",
+        "Garden trowel (optional)",
       ],
-      timeEstimate: "2-3 days with 2-4 people",
+      timeEstimate: "2-4 hours with 1-2 people",
     },
   };
 }

@@ -430,6 +430,13 @@ export default function Explorer({ onBack }: ExplorerProps) {
             </div>
           </motion.div>
         </main>
+
+        {/* Footer */}
+        <footer className="py-8 px-4 bg-black border-t border-gray-800">
+          <div className="max-w-4xl mx-auto text-center text-sm text-gray-500">
+            <p>2026 Copyright - Joe LeBoube</p>
+          </div>
+        </footer>
       </div>
     </LoadScript>
   );
