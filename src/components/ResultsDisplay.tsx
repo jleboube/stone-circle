@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import type { AnalysisResult, SiteRecommendation } from "@/types";
+import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
 
 const GoogleMapDisplay = dynamic(() => import("./GoogleMapDisplay"), {
   ssr: false,
@@ -37,6 +38,36 @@ interface ResultsDisplayProps {
   onBack: () => void;
 }
 
+// Generate Google Static Maps URL for PDF export
+function generateStaticMapUrl(
+  center: { lat: number; lng: number },
+  sites: SiteRecommendation[],
+  width: number = 640,
+  height: number = 400
+): string {
+  const baseUrl = "https://maps.googleapis.com/maps/api/staticmap";
+
+  // Build markers parameter
+  // Home marker (blue)
+  const homeMarker = `markers=color:blue%7Clabel:H%7C${center.lat},${center.lng}`;
+
+  // Site markers (numbered, cyan color)
+  const siteMarkers = sites
+    .map((site, index) =>
+      `markers=color:0x06b6d4%7Clabel:${index + 1}%7C${site.coordinates.lat},${site.coordinates.lng}`
+    )
+    .join("&");
+
+  // Build path (lines from home to each site)
+  const paths = sites
+    .map(site =>
+      `path=color:0x06b6d480%7Cweight:2%7C${center.lat},${center.lng}%7C${site.coordinates.lat},${site.coordinates.lng}`
+    )
+    .join("&");
+
+  return `${baseUrl}?size=${width}x${height}&maptype=hybrid&${homeMarker}&${siteMarkers}&${paths}&key=${GOOGLE_MAPS_API_KEY}`;
+}
+
 export default function ResultsDisplay({
   result,
   onBack,
@@ -50,6 +81,7 @@ export default function ResultsDisplay({
     specs: true,
     testing: false,
   });
+  const [isPdfExporting, setIsPdfExporting] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
   const toggleSection = (section: string) => {
@@ -65,18 +97,21 @@ export default function ResultsDisplay({
     // Save current expanded state
     const previousState = { ...expandedSections };
 
-    // Expand all sections for PDF export
+    // Expand all sections and switch to static map for PDF export
     setExpandedSections({
       specs: true,
       testing: true,
     });
+    setIsPdfExporting(true);
 
-    // Wait for React to re-render with expanded sections
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    // Wait for React to re-render with expanded sections and static map
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     const canvas = await html2canvas(reportRef.current, {
       scale: 2,
       backgroundColor: "#0f0a19",
+      useCORS: true,
+      allowTaint: true,
     });
     const imgData = canvas.toDataURL("image/png");
 
@@ -89,8 +124,9 @@ export default function ResultsDisplay({
     pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
     pdf.save(`geohypothesis-report-${Date.now()}.pdf`);
 
-    // Restore previous expanded state
+    // Restore previous state
     setExpandedSections(previousState);
+    setIsPdfExporting(false);
   };
 
   const handleShare = async () => {
@@ -153,11 +189,26 @@ export default function ResultsDisplay({
             <MapPin className="w-6 h-6 text-mystic-400" />
             Recommended Power Spots
           </h2>
-          <GoogleMapDisplay
-            center={result.location}
-            sites={result.sites}
-            onSiteSelect={setSelectedSite}
-          />
+          {isPdfExporting ? (
+            // Static map image for PDF export
+            <div className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden bg-mystic-900">
+              <img
+                src={generateStaticMapUrl(result.location, result.sites, 800, 500)}
+                alt="Map of recommended power spots"
+                className="w-full h-full object-cover"
+                crossOrigin="anonymous"
+              />
+              <div className="mt-2 text-xs text-gray-500 text-center">
+                H = Your Location | Numbers = Recommended Sites
+              </div>
+            </div>
+          ) : (
+            <GoogleMapDisplay
+              center={result.location}
+              sites={result.sites}
+              onSiteSelect={setSelectedSite}
+            />
+          )}
         </motion.section>
 
         {/* Sites Grid */}
