@@ -1,15 +1,24 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   GoogleMap,
   useJsApiLoader,
   Marker,
   InfoWindow,
   Polyline,
+  Circle,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
 import type { Location, SiteRecommendation } from "@/types";
+import {
+  fetchEarthquakes,
+  fetchFaultLines,
+  getMagnitudeColor,
+  getMagnitudeSize,
+  type Earthquake,
+  type FaultLine,
+} from "@/lib/geological";
 
 interface GoogleMapDisplayProps {
   center: Location;
@@ -153,10 +162,53 @@ export default function GoogleMapDisplay({
   );
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
+  // Geological overlay state
+  const [showFaultLines, setShowFaultLines] = useState(true);
+  const [showEarthquakes, setShowEarthquakes] = useState(true);
+  const [faultLines, setFaultLines] = useState<FaultLine[]>([]);
+  const [earthquakes, setEarthquakes] = useState<Earthquake[]>([]);
+  const [selectedEarthquake, setSelectedEarthquake] = useState<Earthquake | null>(null);
+  const [isLoadingGeoData, setIsLoadingGeoData] = useState(false);
+
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
+
+  // Fetch geological data when map loads
+  useEffect(() => {
+    if (!isLoaded || !center) return;
+
+    const fetchGeoData = async () => {
+      setIsLoadingGeoData(true);
+
+      // Calculate bounds ~50 miles around center
+      const latOffset = 0.75; // ~50 miles
+      const lngOffset = 0.75 / Math.cos((center.lat * Math.PI) / 180);
+
+      const bounds = {
+        north: center.lat + latOffset,
+        south: center.lat - latOffset,
+        east: center.lng + lngOffset,
+        west: center.lng - lngOffset,
+      };
+
+      try {
+        const [faults, quakes] = await Promise.all([
+          fetchFaultLines(bounds),
+          fetchEarthquakes(bounds, 2.5, 365), // Last year of earthquakes M2.5+
+        ]);
+        setFaultLines(faults);
+        setEarthquakes(quakes);
+      } catch (error) {
+        console.error("Error fetching geological data:", error);
+      } finally {
+        setIsLoadingGeoData(false);
+      }
+    };
+
+    fetchGeoData();
+  }, [isLoaded, center]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     // Fit bounds to include all markers
@@ -197,7 +249,75 @@ export default function GoogleMapDisplay({
   }
 
   return (
-    <div className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden">
+    <div className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden relative">
+      {/* Layer Toggle Controls */}
+      <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+        <div className="bg-black/80 backdrop-blur-sm rounded-lg p-3 space-y-2">
+          <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
+            Geological Layers
+          </h4>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showFaultLines}
+              onChange={(e) => setShowFaultLines(e.target.checked)}
+              className="w-4 h-4 rounded bg-mystic-900 border-mystic-600 text-mystic-500
+                       focus:ring-mystic-500 focus:ring-offset-0"
+            />
+            <span className="text-sm text-gray-200">Fault Lines</span>
+            <span className="w-4 h-0.5 bg-orange-500 ml-1"></span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showEarthquakes}
+              onChange={(e) => setShowEarthquakes(e.target.checked)}
+              className="w-4 h-4 rounded bg-mystic-900 border-mystic-600 text-mystic-500
+                       focus:ring-mystic-500 focus:ring-offset-0"
+            />
+            <span className="text-sm text-gray-200">Earthquakes (1yr)</span>
+            <span className="w-3 h-3 rounded-full bg-red-500 ml-1"></span>
+          </label>
+          {isLoadingGeoData && (
+            <p className="text-xs text-mystic-400 animate-pulse">Loading data...</p>
+          )}
+          {!isLoadingGeoData && (
+            <p className="text-xs text-gray-500">
+              {faultLines.length} faults, {earthquakes.length} quakes
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Legend */}
+      {showEarthquakes && earthquakes.length > 0 && (
+        <div className="absolute bottom-3 left-3 z-10 bg-black/80 backdrop-blur-sm rounded-lg p-3">
+          <h4 className="text-xs font-semibold text-gray-300 mb-2">Magnitude</h4>
+          <div className="flex items-center gap-3 text-xs text-gray-300">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-[#00cc99]"></span>
+              2.5-3
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#99cc00]"></span>
+              3-4
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3 h-3 rounded-full bg-[#ffcc00]"></span>
+              4-5
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-3.5 h-3.5 rounded-full bg-[#ff6600]"></span>
+              5-6
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-4 h-4 rounded-full bg-[#ff0000]"></span>
+              6+
+            </span>
+          </div>
+        </div>
+      )}
+
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={{ lat: center.lat, lng: center.lng }}
@@ -213,6 +333,74 @@ export default function GoogleMapDisplay({
           fullscreenControl: true,
         }}
       >
+        {/* Fault Lines */}
+        {showFaultLines &&
+          faultLines.map((fault) => (
+            <Polyline
+              key={fault.id}
+              path={fault.coordinates.map((c) => ({ lat: c.lat, lng: c.lng }))}
+              options={{
+                strokeColor: "#f97316",
+                strokeOpacity: 0.8,
+                strokeWeight: 3,
+                geodesic: true,
+              }}
+            />
+          ))}
+
+        {/* Earthquake Markers */}
+        {showEarthquakes &&
+          earthquakes.map((quake) => (
+            <Circle
+              key={quake.id}
+              center={{ lat: quake.coordinates.lat, lng: quake.coordinates.lng }}
+              radius={getMagnitudeSize(quake.magnitude) * 150}
+              options={{
+                fillColor: getMagnitudeColor(quake.magnitude),
+                fillOpacity: 0.6,
+                strokeColor: getMagnitudeColor(quake.magnitude),
+                strokeOpacity: 0.9,
+                strokeWeight: 1,
+                clickable: true,
+              }}
+              onClick={() => setSelectedEarthquake(quake)}
+            />
+          ))}
+
+        {/* Earthquake Info Window */}
+        {selectedEarthquake && (
+          <InfoWindow
+            position={{
+              lat: selectedEarthquake.coordinates.lat,
+              lng: selectedEarthquake.coordinates.lng,
+            }}
+            onCloseClick={() => setSelectedEarthquake(null)}
+          >
+            <div className="p-2 max-w-[200px]">
+              <h3 className="font-bold text-gray-900 text-sm mb-1">
+                M{selectedEarthquake.magnitude.toFixed(1)} Earthquake
+              </h3>
+              <p className="text-gray-600 text-xs mb-1">
+                {selectedEarthquake.place}
+              </p>
+              <p className="text-gray-500 text-xs">
+                {new Date(selectedEarthquake.time).toLocaleDateString()}
+              </p>
+              <p className="text-gray-500 text-xs">
+                Depth: {selectedEarthquake.coordinates.depth.toFixed(1)} km
+              </p>
+              <a
+                href={selectedEarthquake.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 text-xs hover:underline mt-1 inline-block"
+              >
+                USGS Details
+              </a>
+            </div>
+          </InfoWindow>
+        )}
+
         {/* Home marker */}
         <Marker
           position={{ lat: center.lat, lng: center.lng }}
@@ -225,6 +413,7 @@ export default function GoogleMapDisplay({
             strokeWeight: 3,
           }}
           title="Your Location"
+          zIndex={100}
         />
 
         {/* Site markers */}
@@ -247,6 +436,7 @@ export default function GoogleMapDisplay({
               fontWeight: "bold",
             }}
             onClick={() => handleSiteClick(site)}
+            zIndex={101}
           />
         ))}
 
@@ -263,6 +453,7 @@ export default function GoogleMapDisplay({
               strokeOpacity: 0.5,
               strokeWeight: 2,
               geodesic: true,
+              zIndex: 50,
             }}
           />
         ))}
