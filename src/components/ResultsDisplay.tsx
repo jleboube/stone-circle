@@ -62,6 +62,18 @@ export default function ResultsDisplay({
 
     if (!reportRef.current) return;
 
+    // Save current expanded state
+    const previousState = { ...expandedSections };
+
+    // Expand all sections for PDF export
+    setExpandedSections({
+      specs: true,
+      testing: true,
+    });
+
+    // Wait for React to re-render with expanded sections
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const canvas = await html2canvas(reportRef.current, {
       scale: 2,
       backgroundColor: "#0f0a19",
@@ -76,6 +88,9 @@ export default function ResultsDisplay({
 
     pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height);
     pdf.save(`geohypothesis-report-${Date.now()}.pdf`);
+
+    // Restore previous expanded state
+    setExpandedSections(previousState);
   };
 
   const handleShare = async () => {
