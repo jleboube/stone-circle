@@ -250,8 +250,9 @@ export default function GoogleMapDisplay({
 
   return (
     <div className="w-full h-[400px] md:h-[500px] rounded-xl overflow-hidden relative">
-      {/* Layer Toggle Controls */}
-      <div className="absolute top-3 left-3 z-10 flex flex-col gap-2">
+      {/* Bottom Controls - Layer Toggles and Legend */}
+      <div className="absolute bottom-3 left-3 z-10 flex gap-2">
+        {/* Layer Toggle Controls */}
         <div className="bg-black/80 backdrop-blur-sm rounded-lg p-3 space-y-2">
           <h4 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">
             Geological Layers
@@ -287,36 +288,36 @@ export default function GoogleMapDisplay({
             </p>
           )}
         </div>
-      </div>
 
-      {/* Legend */}
-      {showEarthquakes && earthquakes.length > 0 && (
-        <div className="absolute bottom-3 left-3 z-10 bg-black/80 backdrop-blur-sm rounded-lg p-3">
-          <h4 className="text-xs font-semibold text-gray-300 mb-2">Magnitude</h4>
-          <div className="flex items-center gap-3 text-xs text-gray-300">
-            <span className="flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-[#00cc99]"></span>
-              2.5-3
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full bg-[#99cc00]"></span>
-              3-4
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-full bg-[#ffcc00]"></span>
-              4-5
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3.5 h-3.5 rounded-full bg-[#ff6600]"></span>
-              5-6
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-4 h-4 rounded-full bg-[#ff0000]"></span>
-              6+
-            </span>
+        {/* Magnitude Legend */}
+        {showEarthquakes && earthquakes.length > 0 && (
+          <div className="bg-black/80 backdrop-blur-sm rounded-lg p-3 self-end">
+            <h4 className="text-xs font-semibold text-gray-300 mb-2">Magnitude</h4>
+            <div className="flex items-center gap-3 text-xs text-gray-300">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-[#00cc99]"></span>
+                2.5-3
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#99cc00]"></span>
+                3-4
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3 h-3 rounded-full bg-[#ffcc00]"></span>
+                4-5
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-3.5 h-3.5 rounded-full bg-[#ff6600]"></span>
+                5-6
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-4 h-4 rounded-full bg-[#ff0000]"></span>
+                6+
+              </span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <GoogleMap
         mapContainerStyle={containerStyle}
