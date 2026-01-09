@@ -390,30 +390,54 @@ export async function POST(request: NextRequest) {
     const { location, provider, apiKey } = body as {
       location: Location;
       provider: AIProvider;
-      apiKey: string;
+      apiKey?: string;
     };
 
-    if (!location || !provider || !apiKey) {
+    if (!location) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing location" },
+        { status: 400 }
+      );
+    }
+
+    // Determine which API key to use
+    let effectiveApiKey = apiKey;
+    let effectiveProvider = provider;
+
+    // If no API key provided, fall back to server-side Gemini key
+    if (!apiKey || apiKey.trim() === "") {
+      const serverGeminiKey = process.env.GEMINI_API_KEY;
+      if (!serverGeminiKey) {
+        return NextResponse.json(
+          { error: "No API key provided and no default key configured" },
+          { status: 400 }
+        );
+      }
+      effectiveApiKey = serverGeminiKey;
+      effectiveProvider = "gemini";
+    }
+
+    if (!effectiveProvider) {
+      return NextResponse.json(
+        { error: "No AI provider specified" },
         { status: 400 }
       );
     }
 
     let aiResponse: string;
 
-    switch (provider) {
+    switch (effectiveProvider) {
       case "openai":
-        aiResponse = await analyzeWithOpenAI(apiKey, location);
+        aiResponse = await analyzeWithOpenAI(effectiveApiKey!, location);
         break;
       case "anthropic":
-        aiResponse = await analyzeWithAnthropic(apiKey, location);
+        aiResponse = await analyzeWithAnthropic(effectiveApiKey!, location);
         break;
       case "gemini":
-        aiResponse = await analyzeWithGemini(apiKey, location);
+        aiResponse = await analyzeWithGemini(effectiveApiKey!, location);
         break;
       case "grok":
-        aiResponse = await analyzeWithGrok(apiKey, location);
+        aiResponse = await analyzeWithGrok(effectiveApiKey!, location);
         break;
       default:
         return NextResponse.json(

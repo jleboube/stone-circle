@@ -22,9 +22,9 @@ interface ExplorerProps {
 }
 
 const providers: { id: AIProvider; name: string; placeholder: string }[] = [
+  { id: "gemini", name: "Google Gemini", placeholder: "AIza..." },
   { id: "openai", name: "OpenAI (GPT-4)", placeholder: "sk-..." },
   { id: "anthropic", name: "Anthropic (Claude)", placeholder: "sk-ant-..." },
-  { id: "gemini", name: "Google Gemini", placeholder: "AIza..." },
   { id: "grok", name: "xAI (Grok)", placeholder: "xai-..." },
 ];
 
@@ -33,7 +33,8 @@ const libraries: ("places")[] = ["places"];
 export default function Explorer({ onBack }: ExplorerProps) {
   const [address, setAddress] = useState("");
   const [selectedProvider, setSelectedProvider] =
-    useState<AIProvider>("openai");
+    useState<AIProvider>("gemini");
+  const [useOwnKey, setUseOwnKey] = useState(false);
   const [apiKey, setApiKey] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -109,7 +110,7 @@ export default function Explorer({ onBack }: ExplorerProps) {
       return;
     }
 
-    if (!apiKey.trim()) {
+    if (useOwnKey && !apiKey.trim()) {
       setError("Please enter your API key");
       return;
     }
@@ -125,8 +126,8 @@ export default function Explorer({ onBack }: ExplorerProps) {
         },
         body: JSON.stringify({
           location,
-          provider: selectedProvider,
-          apiKey,
+          provider: useOwnKey ? selectedProvider : "gemini",
+          apiKey: useOwnKey ? apiKey : "",
         }),
       });
 
@@ -268,47 +269,99 @@ export default function Explorer({ onBack }: ExplorerProps) {
                 <div>
                   <h2 className="text-xl font-semibold">AI Provider</h2>
                   <p className="text-sm text-gray-400">
-                    Select your AI provider and enter your API key
+                    Use our free analysis or bring your own API key
                   </p>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {providers.map((provider) => (
-                    <button
-                      key={provider.id}
-                      onClick={() => setSelectedProvider(provider.id)}
-                      className={`p-3 rounded-xl border transition-all text-sm font-medium
-                                ${
-                                  selectedProvider === provider.id
-                                    ? "border-mystic-500 bg-mystic-500/20 text-mystic-300"
-                                    : "border-mystic-700 hover:border-mystic-600 text-gray-400"
-                                }`}
-                    >
-                      {provider.name}
-                    </button>
-                  ))}
+                {/* Default option - no API key needed */}
+                <div
+                  onClick={() => setUseOwnKey(false)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all
+                            ${!useOwnKey
+                              ? "border-mystic-500 bg-mystic-500/20"
+                              : "border-mystic-700 hover:border-mystic-600"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+                                  ${!useOwnKey ? "border-mystic-400" : "border-gray-500"}`}>
+                      {!useOwnKey && <div className="w-2 h-2 rounded-full bg-mystic-400" />}
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">Use Free Analysis</p>
+                      <p className="text-sm text-gray-400">Powered by Google Gemini - no API key required</p>
+                    </div>
+                  </div>
                 </div>
 
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder={
-                    providers.find((p) => p.id === selectedProvider)
-                      ?.placeholder || "Enter API key..."
-                  }
-                  className="w-full px-4 py-3 bg-black/50 border border-mystic-700 rounded-xl
-                           focus:outline-none focus:ring-2 focus:ring-mystic-500 focus:border-transparent
-                           placeholder:text-gray-500"
-                />
+                {/* Use own key option */}
+                <div
+                  onClick={() => setUseOwnKey(true)}
+                  className={`p-4 rounded-xl border cursor-pointer transition-all
+                            ${useOwnKey
+                              ? "border-mystic-500 bg-mystic-500/20"
+                              : "border-mystic-700 hover:border-mystic-600"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center
+                                  ${useOwnKey ? "border-mystic-400" : "border-gray-500"}`}>
+                      {useOwnKey && <div className="w-2 h-2 rounded-full bg-mystic-400" />}
+                    </div>
+                    <div>
+                      <p className="font-medium text-white">Use My Own API Key</p>
+                      <p className="text-sm text-gray-400">Choose your preferred AI provider</p>
+                    </div>
+                  </div>
+                </div>
 
-                <p className="text-xs text-gray-500 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4" />
-                  Your API key is sent directly to the AI provider and is never
-                  stored on our servers.
-                </p>
+                {/* Provider selection and API key input - only shown when using own key */}
+                <AnimatePresence>
+                  {useOwnKey && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="space-y-4 overflow-hidden"
+                    >
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+                        {providers.map((provider) => (
+                          <button
+                            key={provider.id}
+                            onClick={() => setSelectedProvider(provider.id)}
+                            className={`p-3 rounded-xl border transition-all text-sm font-medium
+                                      ${
+                                        selectedProvider === provider.id
+                                          ? "border-mystic-500 bg-mystic-500/20 text-mystic-300"
+                                          : "border-mystic-700 hover:border-mystic-600 text-gray-400"
+                                      }`}
+                          >
+                            {provider.name}
+                          </button>
+                        ))}
+                      </div>
+
+                      <input
+                        type="password"
+                        value={apiKey}
+                        onChange={(e) => setApiKey(e.target.value)}
+                        placeholder={
+                          providers.find((p) => p.id === selectedProvider)
+                            ?.placeholder || "Enter API key..."
+                        }
+                        className="w-full px-4 py-3 bg-black/50 border border-mystic-700 rounded-xl
+                                 focus:outline-none focus:ring-2 focus:ring-mystic-500 focus:border-transparent
+                                 placeholder:text-gray-500"
+                      />
+
+                      <p className="text-xs text-gray-500 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Your API key is sent directly to the AI provider and is never
+                        stored on our servers.
+                      </p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
@@ -330,7 +383,7 @@ export default function Explorer({ onBack }: ExplorerProps) {
             {/* Analyze Button */}
             <motion.button
               onClick={handleAnalyze}
-              disabled={!location || !apiKey || isLoading}
+              disabled={!location || (useOwnKey && !apiKey) || isLoading}
               className="w-full py-4 bg-gradient-to-r from-mystic-600 to-cyan-600 rounded-xl font-semibold text-lg
                        hover:from-mystic-500 hover:to-cyan-500 transition-all duration-300
                        shadow-lg shadow-mystic-500/20 disabled:opacity-50 disabled:cursor-not-allowed
