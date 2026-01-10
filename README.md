@@ -24,8 +24,6 @@ GeoHypothesis Explorer Landing Page & Results
 
 ![Landing Page](docs/landing.png "GeoHypothesis Explorer Landing Page")
 ![Explorer Input](docs/explorer.png "Location Input & AI Provider Selection")
-![Results Map](docs/results-map.png "Analysis Results with Interactive Map")
-![Site Recommendations](docs/results-sites.png "Recommended Power Spots")
 
 
 ## The Hypothesis
