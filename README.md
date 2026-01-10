@@ -1,119 +1,152 @@
+<div align="center">
+
 # GeoHypothesis Explorer
 
-## Discover the Hidden Power Beneath Your Feet
+![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=fff)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=000)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=fff)
+![Three.js](https://img.shields.io/badge/Three.js-000000?logo=threedotjs&logoColor=fff)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=fff)
+![Google Maps](https://img.shields.io/badge/Google_Maps-4285F4?logo=googlemaps&logoColor=fff)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=fff)
 
-GeoHypothesis Explorer is an AI-powered web application that helps users identify optimal locations for testing the ancient stone circle hypothesis. By analyzing geological data, fault lines, and mineral deposits near any location, the app recommends sites that align with the combined theory that stone circles were electromagnetic harvesters, consciousness amplifiers, and lightning conduits.
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/muscl3n3rd)
 
-### The Hypothesis
+An AI-powered web application that helps users discover optimal locations for testing the ancient stone circle hypothesis by analyzing geological data, fault lines, and seismic activity.
+
+[Screenshots](#screenshots) • [Features](#features) • [Quick Start](#quick-start) • [Tech Stack](#tech-stack)
+
+</div>
+
+## Screenshots
+
+GeoHypothesis Explorer Landing Page & Results
+
+![Landing Page](docs/landing.png "GeoHypothesis Explorer Landing Page")
+![Explorer Input](docs/explorer.png "Location Input & AI Provider Selection")
+![Results Map](docs/results-map.png "Analysis Results with Interactive Map")
+![Site Recommendations](docs/results-sites.png "Recommended Power Spots")
+
+
+## The Hypothesis
 
 Ancient stone circles weren't just monuments—they may have been sophisticated energy machines tapping into Earth's natural forces:
 
-- **Electromagnetic Harvesters**: Stone circles may have captured and concentrated Earth's natural electromagnetic fields, creating zones of amplified energy through piezoelectric properties of granite and quartz.
+- **Electromagnetic Harvesters**: Stone circles may have captured and concentrated Earth's natural electromagnetic fields through piezoelectric properties of granite and quartz.
 
-- **Consciousness Amplifiers**: These ancient structures could have served as geophysical amplifiers for altered states of consciousness, enhancing meditation, healing, and spiritual experiences.
+- **Consciousness Amplifiers**: These ancient structures could have served as geophysical amplifiers for altered states of consciousness, enhancing meditation and healing.
 
 - **Telluric Conduits**: Positioned at geological fault lines and mineral deposits, stone circles may have acted as conductors for Earth's telluric currents and lightning energy.
 
----
 
 ## Features
 
 - **Interactive 3D Visualization**: Stunning Three.js-powered stone circle animation on the landing page
 - **Google Maps Integration**: Address autocomplete and interactive map display with site markers
-- **Multi-Provider AI Support**: Choose from OpenAI (GPT-4), Anthropic (Claude), Google Gemini, or xAI (Grok)
-- **Geological Analysis**: AI-powered analysis of fault lines, mineral deposits, and geological features
-- **Site Recommendations**: Get 3 optimal locations within 10-20 miles of your address
-- **Stone Circle Specifications**: Custom recommendations for stone types, dimensions, and placement
-- **Testing Guidance**: Measurement techniques and testing protocols for your experiments
-- **PDF Export**: Download your complete analysis report
+- **Geological Overlays**: Real-time fault lines and earthquake data from USGS APIs
+- **Multi-Provider AI Support**: Choose from:
+  - Google Gemini (default, free)
+  - OpenAI (GPT-4)
+  - Anthropic (Claude)
+  - xAI (Grok)
+- **Site Recommendations**: Get 5 optimal locations within 10-20 miles with geological analysis
+- **Practical Test Circle Specs**: Portable stone circle designs using manageable stones (under 50 lbs)
+- **Testing Guidance**: Equipment lists, procedures, and safety protocols
+- **PDF Export**: Download complete analysis with static map image
 
----
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, React 18, TypeScript
-- **3D Graphics**: Three.js, React Three Fiber, React Three Drei
-- **Maps**: Google Maps API (Places Autocomplete, Geocoding, Maps JavaScript API)
-- **Styling**: Tailwind CSS with custom teal/cyan theme
-- **Animation**: Framer Motion
-- **AI Integration**: OpenAI, Anthropic, Google Generative AI SDKs
-- **Deployment**: Docker, Docker Compose
+### Frontend
+- **Next.js 14** - React framework with App Router
+- **React 18** - UI framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Utility-first styling (custom teal/cyan theme)
+- **Framer Motion** - Animations
 
----
+### 3D Graphics
+- **Three.js** - 3D rendering engine
+- **React Three Fiber** - React renderer for Three.js
+- **React Three Drei** - Useful helpers for R3F
 
-## Getting Started
+### Maps & Geological Data
+- **Google Maps JavaScript API** - Interactive maps
+- **Google Places API** - Address autocomplete
+- **Google Static Maps API** - PDF export maps
+- **USGS Earthquake API** - Seismic activity data
+- **USGS Fault Database** - Quaternary fault lines
+
+### AI Providers
+- **Google Generative AI** - Gemini integration
+- **OpenAI API** - GPT-4 integration
+- **Anthropic API** - Claude integration
+- **xAI API** - Grok integration
+
+### Infrastructure
+- **Docker** - Containerization
+- **Docker Compose** - Multi-container orchestration
+
+
+## Quick Start
 
 ### Prerequisites
-
-- Docker and Docker Compose installed
-- Google Maps API key (for address autocomplete and maps)
-- API key from at least one AI provider (OpenAI, Anthropic, Google, or xAI)
+- Docker and Docker Compose v2
+- Google Maps API key
+- (Optional) API key from AI provider for custom analysis
 
 ### Installation
 
-**1. Clone the repository:**
+1. Clone the repository:
 ```bash
 git clone https://gitea.my-house.dev/joe/stone-circle.git
 cd stone-circle
 ```
 
-**2. Configure environment:**
+2. Create environment file:
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and add your Google Maps API key:
-```
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-```
-
-**3. Build and run with Docker:**
+3. Edit `.env` with your Gemini API key:
 ```bash
-docker compose up -d
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-**4. Access the application:**
+4. Start the application:
+```bash
+docker compose up -d --build
+```
 
-Open your browser and navigate to: **http://localhost:31415**
+5. Access the application at: **http://localhost:31415**
 
----
+### Default Port
+The application runs on port **31415** by default.
+
+
+## Configuration
+
+### Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `GEMINI_API_KEY` | Google Gemini API key for free analysis | Yes |
+
 
 ## Usage
 
-1. **Explore the Hypothesis**: Read about the three pillars of the stone circle hypothesis on the landing page
-2. **Enter Your Location**: Use the address input with Google Maps autocomplete to verify your location
-3. **Select AI Provider**: Choose your preferred AI provider and enter your API key
-4. **Analyze**: Click "Discover Power Spots Near You" to start the geological analysis
-5. **Review Results**: Explore the recommended sites on the interactive map
-6. **Export**: Download your complete analysis as a PDF report
+### Discovering Power Spots
 
----
+1. Click **"Find Your Power Spot"** on the landing page
+2. Enter your address using the autocomplete search
+3. Choose analysis method:
+   - **Free Analysis** - Uses server-side Gemini (no API key needed)
+   - **Own API Key** - Select provider and enter your key
+4. Click **"Discover Power Spots Near You"**
+5. Explore the 5 recommended sites on the interactive map
+6. Toggle geological overlays (fault lines, earthquakes)
+7. Review stone circle specifications and testing guidance
+8. Download the complete report as PDF
 
-## Local Development
-
-### Without Docker
-
-**1. Install dependencies:**
-```bash
-npm install
-```
-
-**2. Run development server:**
-```bash
-npm run dev
-```
-
-**3. Access at:** http://localhost:3000
-
-### With Docker
-
-```bash
-docker compose up --build
-```
-
-Access at: http://localhost:31415
-
----
 
 ## Project Structure
 
@@ -127,62 +160,63 @@ stone-circle/
 │   │   └── page.tsx         # Main page
 │   ├── components/
 │   │   ├── Explorer.tsx     # Location input & AI config
-│   │   ├── GoogleMapDisplay.tsx  # Google Maps component
+│   │   ├── GoogleMapDisplay.tsx  # Interactive map with overlays
 │   │   ├── LandingPage.tsx  # Hero & hypothesis content
-│   │   ├── ResultsDisplay.tsx    # Analysis results
+│   │   ├── ResultsDisplay.tsx    # Analysis results & PDF export
 │   │   └── StoneCircle3D.tsx     # 3D visualization
 │   ├── lib/
 │   │   ├── constants.ts     # API keys & config
-│   │   └── utils.ts         # Utility functions
+│   │   └── geological.ts    # USGS API integration
 │   └── types/
 │       └── index.ts         # TypeScript definitions
+├── docs/                    # Screenshots
 ├── docker-compose.yml       # Docker configuration
 ├── Dockerfile              # Multi-stage build
-├── tailwind.config.ts      # Tailwind theme (teal/cyan)
+├── tailwind.config.ts      # Tailwind theme
 └── package.json            # Dependencies
 ```
 
----
+
+## Local Development
+
+### Without Docker
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Access at http://localhost:3000
+```
+
+### With Docker
+
+```bash
+docker compose up --build
+# Access at http://localhost:31415
+```
+
 
 ## API Key Security
 
-- Your AI provider API keys are **never stored** on our servers
-- Keys are sent directly to the respective AI providers
-- All API calls are made server-side for security
-- Google Maps API key is used client-side for maps functionality
+- **Server-side Gemini key**: Used for free analysis, never exposed to client
+- **User API keys**: Sent directly to AI providers, never stored
+- **Google Maps key**: Client-side for maps (restrict in Google Cloud Console)
 
----
 
 ## Disclaimer
 
 This is an exploratory tool based on speculative hypotheses. The theories presented are not scientifically proven. Users are responsible for their safety and legal compliance when visiting any suggested locations. Always obtain proper permissions before accessing private land.
 
----
-
-## Contributing
-
-Contributions are welcome! If you have ideas, suggestions, or bug reports:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
----
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License
 
 ---
 
-## Author
-
-**Joe LeBoube**
-
-- Website: [joeleboube.com](https://joeleboube.com)
-- Email: joeleboube@gmail.com
-
----
+[![LinkedIn](https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff)](https://linkedin.com/in/joe-leboube)
 
 2026 Copyright - Joe LeBoube
