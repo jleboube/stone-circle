@@ -10,7 +10,7 @@ import {
   Circle,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
-import type { Location, SiteRecommendation } from "@/types";
+import type { Location, SiteRecommendation, UFOSighting } from "@/types";
 import {
   fetchEarthquakes,
   fetchFaultLines,
@@ -19,6 +19,11 @@ import {
   type Earthquake,
   type FaultLine,
 } from "@/lib/geological";
+import {
+  fetchUFOSightings,
+  formatSightingDate,
+  getShapeIcon,
+} from "@/lib/ufo-sightings";
 
 interface GoogleMapDisplayProps {
   center: Location;
@@ -170,6 +175,12 @@ export default function GoogleMapDisplay({
   const [selectedEarthquake, setSelectedEarthquake] = useState<Earthquake | null>(null);
   const [isLoadingGeoData, setIsLoadingGeoData] = useState(false);
 
+  // UFO sightings overlay state
+  const [showUFOSightings, setShowUFOSightings] = useState(false);
+  const [ufoSightings, setUfoSightings] = useState<UFOSighting[]>([]);
+  const [selectedUFO, setSelectedUFO] = useState<UFOSighting | null>(null);
+  const [isLoadingUFOData, setIsLoadingUFOData] = useState(false);
+
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
@@ -209,6 +220,38 @@ export default function GoogleMapDisplay({
 
     fetchGeoData();
   }, [isLoaded, center]);
+
+  // Fetch UFO sightings when toggle is enabled
+  useEffect(() => {
+    if (!isLoaded || !center || !showUFOSightings) return;
+    if (ufoSightings.length > 0) return; // Already fetched
+
+    const fetchUFOData = async () => {
+      setIsLoadingUFOData(true);
+
+      // Calculate bounds ~50 miles around center
+      const latOffset = 0.75;
+      const lngOffset = 0.75 / Math.cos((center.lat * Math.PI) / 180);
+
+      const bounds = {
+        north: center.lat + latOffset,
+        south: center.lat - latOffset,
+        east: center.lng + lngOffset,
+        west: center.lng - lngOffset,
+      };
+
+      try {
+        const sightings = await fetchUFOSightings(bounds);
+        setUfoSightings(sightings);
+      } catch (error) {
+        console.error("Error fetching UFO sightings:", error);
+      } finally {
+        setIsLoadingUFOData(false);
+      }
+    };
+
+    fetchUFOData();
+  }, [isLoaded, center, showUFOSightings, ufoSightings.length]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     // Fit bounds to include all markers
@@ -279,12 +322,24 @@ export default function GoogleMapDisplay({
             <span className="text-sm text-gray-200">Earthquakes (1yr)</span>
             <span className="w-3 h-3 rounded-full bg-red-500 ml-1"></span>
           </label>
-          {isLoadingGeoData && (
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={showUFOSightings}
+              onChange={(e) => setShowUFOSightings(e.target.checked)}
+              className="w-4 h-4 rounded bg-mystic-900 border-mystic-600 text-mystic-500
+                       focus:ring-mystic-500 focus:ring-offset-0"
+            />
+            <span className="text-sm text-gray-200">UFO Sightings</span>
+            <span className="w-3 h-3 rounded-full bg-green-500 ml-1"></span>
+          </label>
+          {(isLoadingGeoData || isLoadingUFOData) && (
             <p className="text-xs text-mystic-400 animate-pulse">Loading data...</p>
           )}
-          {!isLoadingGeoData && (
+          {!isLoadingGeoData && !isLoadingUFOData && (
             <p className="text-xs text-gray-500">
               {faultLines.length} faults, {earthquakes.length} quakes
+              {showUFOSightings && ufoSightings.length > 0 && `, ${ufoSightings.length} UFOs`}
             </p>
           )}
         </div>
@@ -398,6 +453,62 @@ export default function GoogleMapDisplay({
               >
                 USGS Details
               </a>
+            </div>
+          </InfoWindow>
+        )}
+
+        {/* UFO Sighting Markers */}
+        {showUFOSightings &&
+          ufoSightings.map((sighting) => (
+            <Marker
+              key={sighting.id}
+              position={{ lat: sighting.coordinates.lat, lng: sighting.coordinates.lng }}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: "#22c55e",
+                fillOpacity: 0.9,
+                strokeColor: "#ffffff",
+                strokeWeight: 2,
+              }}
+              onClick={() => setSelectedUFO(sighting)}
+              zIndex={80}
+            />
+          ))}
+
+        {/* UFO Sighting Info Window */}
+        {selectedUFO && (
+          <InfoWindow
+            position={{
+              lat: selectedUFO.coordinates.lat,
+              lng: selectedUFO.coordinates.lng,
+            }}
+            onCloseClick={() => setSelectedUFO(null)}
+          >
+            <div className="p-2 max-w-[280px]">
+              <h3 className="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
+                <span>{getShapeIcon(selectedUFO.shape)}</span>
+                UFO Sighting
+              </h3>
+              <div className="space-y-1 text-xs">
+                <p className="text-gray-600">
+                  <span className="font-medium">Location:</span> {selectedUFO.city}, {selectedUFO.state}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-medium">Date:</span> {formatSightingDate(selectedUFO.dateTime)}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-medium">Shape:</span> {selectedUFO.shape}
+                </p>
+                <p className="text-gray-600">
+                  <span className="font-medium">Duration:</span> {selectedUFO.duration}
+                </p>
+                {selectedUFO.description && (
+                  <p className="text-gray-500 mt-2 pt-2 border-t border-gray-200 line-clamp-4">
+                    {selectedUFO.description}
+                  </p>
+                )}
+              </div>
             </div>
           </InfoWindow>
         )}

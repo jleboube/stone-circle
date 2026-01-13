@@ -78,3 +78,18 @@ export interface APIKeyConfig {
   provider: AIProvider;
   key: string;
 }
+
+export interface UFOSighting {
+  id: string;
+  city: string;
+  state: string;
+  country: string;
+  dateTime: string;
+  shape: string;
+  duration: string;
+  description: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+}
