@@ -226,8 +226,8 @@ export default function ResultsDisplay({
                 className={`glass rounded-xl p-6 cursor-pointer transition-all
                           ${selectedSite === site ? "ring-2 ring-mystic-500 scale-[1.02]" : "hover:bg-mystic-800/30"}`}
               >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-mystic-500 to-cyan-500 flex items-center justify-center font-bold">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 min-w-[40px] min-h-[40px] shrink-0 aspect-square rounded-full bg-gradient-to-br from-mystic-500 to-cyan-500 flex items-center justify-center font-bold text-base">
                     {index + 1}
                   </div>
                   <div>
