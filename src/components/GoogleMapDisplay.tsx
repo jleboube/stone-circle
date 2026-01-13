@@ -10,7 +10,7 @@ import {
   Circle,
 } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
-import type { Location, SiteRecommendation, UFOSighting } from "@/types";
+import type { Location, SiteRecommendation, UAPSighting } from "@/types";
 import {
   fetchEarthquakes,
   fetchFaultLines,
@@ -20,10 +20,10 @@ import {
   type FaultLine,
 } from "@/lib/geological";
 import {
-  fetchUFOSightings,
+  fetchUAPSightings,
   formatSightingDate,
   getShapeIcon,
-} from "@/lib/ufo-sightings";
+} from "@/lib/uap-sightings";
 
 interface GoogleMapDisplayProps {
   center: Location;
@@ -175,11 +175,11 @@ export default function GoogleMapDisplay({
   const [selectedEarthquake, setSelectedEarthquake] = useState<Earthquake | null>(null);
   const [isLoadingGeoData, setIsLoadingGeoData] = useState(false);
 
-  // UFO sightings overlay state
-  const [showUFOSightings, setShowUFOSightings] = useState(false);
-  const [ufoSightings, setUfoSightings] = useState<UFOSighting[]>([]);
-  const [selectedUFO, setSelectedUFO] = useState<UFOSighting | null>(null);
-  const [isLoadingUFOData, setIsLoadingUFOData] = useState(false);
+  // UAP sightings overlay state
+  const [showUAPSightings, setShowUAPSightings] = useState(false);
+  const [uapSightings, setUapSightings] = useState<UAPSighting[]>([]);
+  const [selectedUAP, setSelectedUAP] = useState<UAPSighting | null>(null);
+  const [isLoadingUAPData, setIsLoadingUAPData] = useState(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
     id: "google-map-script",
@@ -221,13 +221,13 @@ export default function GoogleMapDisplay({
     fetchGeoData();
   }, [isLoaded, center]);
 
-  // Fetch UFO sightings when toggle is enabled
+  // Fetch UAP sightings when toggle is enabled
   useEffect(() => {
-    if (!isLoaded || !center || !showUFOSightings) return;
-    if (ufoSightings.length > 0) return; // Already fetched
+    if (!isLoaded || !center || !showUAPSightings) return;
+    if (uapSightings.length > 0) return; // Already fetched
 
-    const fetchUFOData = async () => {
-      setIsLoadingUFOData(true);
+    const fetchUAPData = async () => {
+      setIsLoadingUAPData(true);
 
       // Calculate bounds ~50 miles around center
       const latOffset = 0.75;
@@ -241,17 +241,17 @@ export default function GoogleMapDisplay({
       };
 
       try {
-        const sightings = await fetchUFOSightings(bounds);
-        setUfoSightings(sightings);
+        const sightings = await fetchUAPSightings(bounds);
+        setUapSightings(sightings);
       } catch (error) {
-        console.error("Error fetching UFO sightings:", error);
+        console.error("Error fetching UAP sightings:", error);
       } finally {
-        setIsLoadingUFOData(false);
+        setIsLoadingUAPData(false);
       }
     };
 
-    fetchUFOData();
-  }, [isLoaded, center, showUFOSightings, ufoSightings.length]);
+    fetchUAPData();
+  }, [isLoaded, center, showUAPSightings, uapSightings.length]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     // Fit bounds to include all markers
@@ -325,21 +325,21 @@ export default function GoogleMapDisplay({
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={showUFOSightings}
-              onChange={(e) => setShowUFOSightings(e.target.checked)}
+              checked={showUAPSightings}
+              onChange={(e) => setShowUAPSightings(e.target.checked)}
               className="w-4 h-4 rounded bg-mystic-900 border-mystic-600 text-mystic-500
                        focus:ring-mystic-500 focus:ring-offset-0"
             />
-            <span className="text-sm text-gray-200">UFO Sightings</span>
+            <span className="text-sm text-gray-200">UAP Sightings</span>
             <span className="w-3 h-3 rounded-full bg-green-500 ml-1"></span>
           </label>
-          {(isLoadingGeoData || isLoadingUFOData) && (
+          {(isLoadingGeoData || isLoadingUAPData) && (
             <p className="text-xs text-mystic-400 animate-pulse">Loading data...</p>
           )}
-          {!isLoadingGeoData && !isLoadingUFOData && (
+          {!isLoadingGeoData && !isLoadingUAPData && (
             <p className="text-xs text-gray-500">
               {faultLines.length} faults, {earthquakes.length} quakes
-              {showUFOSightings && ufoSightings.length > 0 && `, ${ufoSightings.length} UFOs`}
+              {showUAPSightings && uapSightings.length > 0 && `, ${uapSightings.length} UAPs`}
             </p>
           )}
         </div>
@@ -457,9 +457,9 @@ export default function GoogleMapDisplay({
           </InfoWindow>
         )}
 
-        {/* UFO Sighting Markers */}
-        {showUFOSightings &&
-          ufoSightings.map((sighting) => (
+        {/* UAP Sighting Markers */}
+        {showUAPSightings &&
+          uapSightings.map((sighting) => (
             <Marker
               key={sighting.id}
               position={{ lat: sighting.coordinates.lat, lng: sighting.coordinates.lng }}
@@ -471,41 +471,41 @@ export default function GoogleMapDisplay({
                 strokeColor: "#ffffff",
                 strokeWeight: 2,
               }}
-              onClick={() => setSelectedUFO(sighting)}
+              onClick={() => setSelectedUAP(sighting)}
               zIndex={80}
             />
           ))}
 
-        {/* UFO Sighting Info Window */}
-        {selectedUFO && (
+        {/* UAP Sighting Info Window */}
+        {selectedUAP && (
           <InfoWindow
             position={{
-              lat: selectedUFO.coordinates.lat,
-              lng: selectedUFO.coordinates.lng,
+              lat: selectedUAP.coordinates.lat,
+              lng: selectedUAP.coordinates.lng,
             }}
-            onCloseClick={() => setSelectedUFO(null)}
+            onCloseClick={() => setSelectedUAP(null)}
           >
             <div className="p-2 max-w-[280px]">
               <h3 className="font-bold text-gray-900 text-sm mb-1 flex items-center gap-2">
-                <span>{getShapeIcon(selectedUFO.shape)}</span>
-                UFO Sighting
+                <span>{getShapeIcon(selectedUAP.shape)}</span>
+                UAP Sighting
               </h3>
               <div className="space-y-1 text-xs">
                 <p className="text-gray-600">
-                  <span className="font-medium">Location:</span> {selectedUFO.city}, {selectedUFO.state}
+                  <span className="font-medium">Location:</span> {selectedUAP.city}, {selectedUAP.state}
                 </p>
                 <p className="text-gray-600">
-                  <span className="font-medium">Date:</span> {formatSightingDate(selectedUFO.dateTime)}
+                  <span className="font-medium">Date:</span> {formatSightingDate(selectedUAP.dateTime)}
                 </p>
                 <p className="text-gray-600">
-                  <span className="font-medium">Shape:</span> {selectedUFO.shape}
+                  <span className="font-medium">Shape:</span> {selectedUAP.shape}
                 </p>
                 <p className="text-gray-600">
-                  <span className="font-medium">Duration:</span> {selectedUFO.duration}
+                  <span className="font-medium">Duration:</span> {selectedUAP.duration}
                 </p>
-                {selectedUFO.description && (
+                {selectedUAP.description && (
                   <p className="text-gray-500 mt-2 pt-2 border-t border-gray-200 line-clamp-4">
-                    {selectedUFO.description}
+                    {selectedUAP.description}
                   </p>
                 )}
               </div>

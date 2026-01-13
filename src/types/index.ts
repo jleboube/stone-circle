@@ -79,7 +79,7 @@ export interface APIKeyConfig {
   key: string;
 }
 
-export interface UFOSighting {
+export interface UAPSighting {
   id: string;
   city: string;
   state: string;
