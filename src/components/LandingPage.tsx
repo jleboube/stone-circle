@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Zap,
@@ -24,10 +25,6 @@ const StoneCircle3D = dynamic(() => import("./StoneCircle3D"), {
     </div>
   ),
 });
-
-interface LandingPageProps {
-  onEnterExplorer: () => void;
-}
 
 const hypothesisPillars = [
   {
@@ -59,9 +56,14 @@ const fadeInUp = {
   transition: { duration: 0.6 },
 };
 
-export default function LandingPage({ onEnterExplorer }: LandingPageProps) {
+export default function LandingPage() {
+  const router = useRouter();
   const [currentPillar, setCurrentPillar] = useState(0);
   const [showScrollIndicator, setShowScrollIndicator] = useState(true);
+
+  const handleEnterExplorer = () => {
+    router.push("/explorer");
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -125,7 +127,7 @@ export default function LandingPage({ onEnterExplorer }: LandingPageProps) {
             </p>
 
             <motion.button
-              onClick={onEnterExplorer}
+              onClick={handleEnterExplorer}
               className="group relative px-8 py-4 bg-gradient-to-r from-mystic-600 to-mystic-500 rounded-full text-lg font-semibold
                          hover:from-mystic-500 hover:to-mystic-400 transition-all duration-300
                          shadow-lg shadow-mystic-500/30 hover:shadow-mystic-500/50"
@@ -282,7 +284,7 @@ export default function LandingPage({ onEnterExplorer }: LandingPageProps) {
           </p>
 
           <motion.button
-            onClick={onEnterExplorer}
+            onClick={handleEnterExplorer}
             className="group relative px-10 py-5 bg-gradient-to-r from-mystic-600 to-cyan-600 rounded-full text-xl font-semibold
                        hover:from-mystic-500 hover:to-cyan-500 transition-all duration-300
                        shadow-2xl shadow-mystic-500/30 hover:shadow-mystic-500/50"
