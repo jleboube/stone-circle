@@ -3,13 +3,12 @@
 import { useCallback, useState, useEffect } from "react";
 import {
   GoogleMap,
-  useJsApiLoader,
   Marker,
   InfoWindow,
   Polyline,
   Circle,
 } from "@react-google-maps/api";
-import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
+import { useGoogleMaps } from "./GoogleMapsProvider";
 import type { Location, SiteRecommendation, UAPSighting } from "@/types";
 import {
   fetchEarthquakes,
@@ -181,10 +180,7 @@ export default function GoogleMapDisplay({
   const [selectedUAP, setSelectedUAP] = useState<UAPSighting | null>(null);
   const [isLoadingUAPData, setIsLoadingUAPData] = useState(false);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: GOOGLE_MAPS_API_KEY,
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
 
   // Fetch geological data when map loads
   useEffect(() => {

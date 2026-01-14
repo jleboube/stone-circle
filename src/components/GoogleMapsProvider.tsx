@@ -4,6 +4,7 @@ import { createContext, useContext, ReactNode } from "react";
 import { useJsApiLoader, Libraries } from "@react-google-maps/api";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
 
+// Load both places (for Autocomplete) and maps libraries
 const libraries: Libraries = ["places"];
 
 interface GoogleMapsContextType {
@@ -18,7 +19,7 @@ const GoogleMapsContext = createContext<GoogleMapsContextType>({
 
 export function GoogleMapsProvider({ children }: { children: ReactNode }) {
   const { isLoaded, loadError } = useJsApiLoader({
-    id: "google-maps-script",
+    id: "google-map-script", // Use same ID everywhere to prevent conflicts
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
     libraries,
   });
