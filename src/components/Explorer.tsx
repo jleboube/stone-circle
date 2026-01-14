@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
@@ -12,9 +12,10 @@ import {
   Search,
   Sparkles,
 } from "lucide-react";
-import { LoadScript, Autocomplete } from "@react-google-maps/api";
+import { Autocomplete } from "@react-google-maps/api";
 import type { AIProvider, Location, AnalysisResult } from "@/types";
 import { GOOGLE_MAPS_API_KEY } from "@/lib/constants";
+import { useGoogleMaps } from "./GoogleMapsProvider";
 import ResultsDisplay from "./ResultsDisplay";
 
 interface ExplorerProps {
@@ -28,9 +29,8 @@ const providers: { id: AIProvider; name: string; placeholder: string }[] = [
   { id: "grok", name: "xAI (Grok)", placeholder: "xai-..." },
 ];
 
-const libraries: ("places")[] = ["places"];
-
 export default function Explorer({ onBack }: ExplorerProps) {
+  const { isLoaded: isScriptLoaded } = useGoogleMaps();
   const [address, setAddress] = useState("");
   const [selectedProvider, setSelectedProvider] =
     useState<AIProvider>("gemini");
@@ -40,7 +40,6 @@ export default function Explorer({ onBack }: ExplorerProps) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
@@ -152,12 +151,7 @@ export default function Explorer({ onBack }: ExplorerProps) {
   }
 
   return (
-    <LoadScript
-      googleMapsApiKey={GOOGLE_MAPS_API_KEY}
-      libraries={libraries}
-      onLoad={() => setIsScriptLoaded(true)}
-    >
-      <div className="min-h-screen bg-gradient-to-b from-mystic-950 to-black">
+    <div className="min-h-screen bg-gradient-to-b from-mystic-950 to-black">
         {/* Header */}
         <header className="p-4 border-b border-mystic-800/50">
           <div className="max-w-4xl mx-auto flex items-center gap-4">
@@ -437,7 +431,6 @@ export default function Explorer({ onBack }: ExplorerProps) {
             <p>2026 Copyright - Joe LeBoube</p>
           </div>
         </footer>
-      </div>
-    </LoadScript>
+    </div>
   );
 }

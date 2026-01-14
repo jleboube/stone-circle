@@ -76,9 +76,8 @@ export async function fetchEarthquakes(
   }
 }
 
-// Fetch fault lines from USGS Quaternary Fault Database
-// Note: This uses a simplified approach with pre-defined major fault zones
-// For production, you'd want to use the full USGS fault database API
+// Fetch fault lines from USGS Quaternary Fault and Fold Database
+// Uses the official USGS ArcGIS REST endpoint
 export async function fetchFaultLines(
   bounds: {
     north: number;
@@ -87,8 +86,8 @@ export async function fetchFaultLines(
     west: number;
   }
 ): Promise<FaultLine[]> {
-  // USGS provides fault data via their web services
-  // Using the Quaternary Fault and Fold Database API
+  // USGS official Quaternary Fault and Fold Database endpoint
+  // Layer 21 is the National Database with full GeoJSON support
   const params = new URLSearchParams({
     f: "geojson",
     where: "1=1",
@@ -101,12 +100,11 @@ export async function fetchFaultLines(
 
   try {
     const response = await fetch(
-      `https://services.arcgis.com/jIL9msH9OI208GCb/arcgis/rest/services/Quaternary_Faults/FeatureServer/0/query?${params}`
+      `https://earthquake.usgs.gov/arcgis/rest/services/haz/Qfaults/MapServer/21/query?${params}`
     );
 
     if (!response.ok) {
-      // Fallback to empty if the service is unavailable
-      console.warn("USGS Fault service unavailable, using fallback");
+      console.warn("USGS Fault service unavailable");
       return [];
     }
 
@@ -116,30 +114,30 @@ export async function fetchFaultLines(
       return [];
     }
 
+    // GeoJSON format uses coordinates array directly in geometry
     return data.features.map((feature: any, index: number) => {
-      // Handle different geometry types
       let coordinates: { lat: number; lng: number }[] = [];
 
-      if (feature.geometry) {
-        if (feature.geometry.paths) {
-          // Polyline geometry
-          coordinates = feature.geometry.paths[0]?.map((coord: number[]) => ({
+      if (feature.geometry && feature.geometry.coordinates) {
+        // GeoJSON LineString format: [[lng, lat], [lng, lat], ...]
+        if (feature.geometry.type === "LineString") {
+          coordinates = feature.geometry.coordinates.map((coord: number[]) => ({
             lat: coord[1],
             lng: coord[0],
-          })) || [];
-        } else if (feature.geometry.rings) {
-          // Polygon geometry
-          coordinates = feature.geometry.rings[0]?.map((coord: number[]) => ({
+          }));
+        } else if (feature.geometry.type === "MultiLineString") {
+          // Flatten multi-line strings
+          coordinates = feature.geometry.coordinates.flat().map((coord: number[]) => ({
             lat: coord[1],
             lng: coord[0],
-          })) || [];
+          }));
         }
       }
 
       return {
-        id: feature.attributes?.fault_id || `fault-${index}`,
-        name: feature.attributes?.fault_name || "Unknown Fault",
-        slipRate: feature.attributes?.slip_rate || "Unknown",
+        id: feature.properties?.fault_id || `fault-${index}`,
+        name: feature.properties?.fault_name || "Unknown Fault",
+        slipRate: feature.properties?.slip_rate || "Unknown",
         coordinates,
       };
     }).filter((fault: FaultLine) => fault.coordinates.length > 0);
