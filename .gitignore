@@ -43,3 +43,5 @@ next-env.d.ts
 .vscode
 *.swp
 *.swo
+# Files blocked by secret scanner - DO NOT REMOVE
+src/lib/constants.ts
